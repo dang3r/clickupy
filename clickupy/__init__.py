@@ -78,25 +78,57 @@ class Client:
        }
        return self._do("PUT", f"list/{list_id}/task")
 
-def serialize_user(user : dict, format: str):
+def serialize_user(user: dict, format: str):
     user = user["user"]
     if format == "human":
         return f'{user["id"]} {user["username"]}'
     elif format == "json":
         return json.dumps(user,indent=2)
-    else:
-        raise Exception()
+
+def serialize_team(team: dict, format:str):
+    if format == "human":
+        return f'{team["id"]} {team["name"]} {len(team["members"])} users'
+    elif format == "json":
+        return json.dumps(team, indent=2)
+
+def serialize_teams(teams: list, format: str):
+    if format == "human":
+        teams_str = [serialize_team(team, format) for team in teams]
+        return "\n".join(teams_str)
+    elif format == "json":
+        return json.dumps(teams, indent=2)
+
+def serialize_spaces(spaces: list, format: str):
+    if format == "human":
+        spaces_str = [f'{space["id"]} {space["name"]}' for space in spaces]
+        return "\n".join(spaces_str)
+    elif format == "json":
+        return json.dumps(spaces, indent=2)
+
+def serialize_projects(projects: list, format: str):
+    if format == "human":
+        projects_str = [f'{project["id"]} {project["name"]}' for project in projects]
+        return "\n".join(projects_str)
+    elif format == "json":
+        return json.dumps(projects, indent=2)
+
+def serialize_tasks(tasks: list, format: str):
+    if format == "human":
+        tasks_str = [f'{task["id"]} {task["name"]}' for task in tasks]
+        return "\n".join(tasks_str)
+    elif format == "json":
+        return json.dumps(projects, indent=2)
 
 def serialize_default(obj, format):
     return json.dumps(obj, indent=2)
 
 serializers = {
     "user": serialize_user,
-    "teams": serialize_default,
-    "team": serialize_default,
-    "spaces": serialize_default,
-    "projects": serialize_default,
-    "tasks": serialize_default
+    "teams": serialize_teams,
+    "team": serialize_team,
+    "spaces": serialize_spaces,
+    "projects": serialize_projects,
+    "tasks": serialize_tasks
 }
 def serialize(object_type: str, object: dict, format: str):
     if object_type not in serializers:
