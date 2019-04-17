@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+from functools import update_wrapper
+import json
+
+import click
+import requests
+
+from clickupy import *
+
+def pass_common_args(func):
+    @click.pass_context
+    def wrapper(ctx, *args, **kwargs):
+        client = ctx.obj["CLIENT"]
+        format = ctx.obj["FORMAT"]
+        return ctx.invoke(func, client, format, *args, **kwargs)
+    return update_wrapper(wrapper, func)
+
+@click.group()
+@click.option("--format", default="human", type=click.Choice(["human", "json"]))
+@click.option("--api_key", envvar="CLICKUP_API_KEY", help="An API KEY for clickup")
+@click.pass_context
+def cli(ctx, format, api_key):
+    """A command line tool for interacting with clickup"""
+    ctx.obj["CLIENT"] = Client(api_key)
+    ctx.obj["FORMAT"] = format
+
+@cli.command()
+@pass_common_args
+def user(client, format):
+    """Get a user"""
+    user = client.user()
+    print(serialize("user", user, format))
+
+@cli.command()
+@pass_common_args
+def teams(client, format):
+    """Get a user's teams"""
+    teams = client.teams()
+    print(serialize("teams", teams, format))
+
+@cli.command()
+@click.argument("id")
+@pass_common_args
+def team(client, format, id):
+    """Get a user's team"""
+    team = client.team(id)
+    print(serialize("team", team, format))
+
+@cli.command()
+@click.argument("team_id")
+@pass_common_args
+def spaces(client, format, team_id):
+    """Get a team's spaces"""
+    spaces = client.spaces(team_id)
+    print(serialize("spaces", spaces, format))
+
+@cli.command()
+@click.argument("space_id")
+@pass_common_args
+def projects(client, format, space_id):
+    """Get a space's projects"""
+    projects = client.projects(space_id)
+    print(serialize("projects", projects, format))
+
+@cli.command()
+@click.argument("team_id")
+@pass_common_args
+def tasks(client, format, team_id):
+    """Get a team's spaces"""
+    tasks = client.tasks(team_id)
+    print(serialize("tasks", tasks, format))
+
+if __name__ == "__main__":
+    cli(obj={})
