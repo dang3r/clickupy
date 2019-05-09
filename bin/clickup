@@ -26,6 +26,15 @@ def cli(ctx, format, api_key):
     ctx.obj["FORMAT"] = format
 
 @cli.command()
+@click.argument("mountpoint")
+@click.pass_context
+def fuse(ctx, mountpoint):
+    """Create a FUSE filesystem containing Clickup objects at mountpoint"""
+    client = ctx.obj["CLIENT"]
+    print(f"Starting fuse filesystem at {mountpoint}")
+    clickup_fuse(mountpoint, client)
+
+@cli.command()
 @pass_common_args
 def user(client, format):
     """Get a user"""

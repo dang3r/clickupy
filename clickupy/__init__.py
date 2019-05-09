@@ -5,6 +5,8 @@ import json
 
 import requests
 
+from .fuse import *
+
 class Error(Exception):
     pass
 
@@ -117,7 +119,7 @@ def serialize_tasks(tasks: list, format: str):
         tasks_str = [f'{task["id"]} {task["name"]}' for task in tasks]
         return "\n".join(tasks_str)
     elif format == "json":
-        return json.dumps(projects, indent=2)
+        return json.dumps(tasks, indent=2)
 
 def serialize_default(obj, format):
     return json.dumps(obj, indent=2)
