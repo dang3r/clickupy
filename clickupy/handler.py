@@ -4,7 +4,7 @@ class Handler:
         self.client = clickup_client
 
     def access(self, path: str, mode: int) -> None:
-        True
+        return True
 
     def chmod(self, path: str, mode) -> None:
         pass
