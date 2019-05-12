@@ -4,15 +4,33 @@ class Handler:
         self.client = clickup_client
 
     def access(self, path: str, mode: int) -> None:
-        return True
+        return None
 
     def chmod(self, path: str, mode) -> None:
-        pass
+        return None
 
     def chown(self, path: str, uid, gid) -> None:
-        pass
+        return None
 
     def getattr(self, path:str, fh=None) -> dict:
+        """
+            # time of last access
+            "st_atime": 1557351945,
+            # Time of last status change
+            "st_ctime": 1557351945,
+            # time of last modification
+            "st_mtime": 1557351945,
+            # Group that owns the file
+            "st_gid": 0,
+            # File or folder
+            "st_mode": 33188,
+            # Number of hard links
+            "st_nlink": 1,
+            # Size of file in bytes
+            "st_size": len(data),
+            # user id
+            "st_uid": 501
+        """
         pass
 
     def readdir(self, path: str, fh: int) -> list:
@@ -31,7 +49,18 @@ class Handler:
         pass
 
     def statfs(self, path: str):
-        pass
+        return {
+            "f_bsize": 1048576,
+            "f_frsize": 4096,
+            "f_blocks": 1220613,
+            "f_bfree": 760260,
+            "f_bavail": 750614,
+            "f_files": 42949672,
+            "f_ffree": 42928496,
+            "f_favail": 42928496,
+            "f_flag": 0,
+            "f_namemax": 255
+        }
 
     def unlink(self, path: str):
         pass

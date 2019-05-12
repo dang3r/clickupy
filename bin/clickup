@@ -18,7 +18,7 @@ def pass_common_args(func):
 
 @click.group()
 @click.option("--format", default="human", type=click.Choice(["human", "json"]))
-@click.option("--api_key", envvar="CLICKUP_API_KEY", help="An API KEY for clickup")
+@click.option("--api_key", envvar="CLICKUP_API_KEY", required=True, help="An API KEY for clickup")
 @click.pass_context
 def cli(ctx, format, api_key):
     """A command line tool for interacting with clickup"""
@@ -29,7 +29,7 @@ def cli(ctx, format, api_key):
 @click.argument("mountpoint")
 @click.pass_context
 def fuse(ctx, mountpoint):
-    """Create a FUSE filesystem containing Clickup objects at mountpoint"""
+    """Create a FUSE filesystem for Clickup resources"""
     client = ctx.obj["CLIENT"]
     print(f"Starting fuse filesystem at {mountpoint}")
     clickup_fuse(mountpoint, client)

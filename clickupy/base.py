@@ -16,10 +16,10 @@ class BaseHandler(Handler):
             # Number of hard links
             "st_nlink": 1,
             # Size of file in bytes
-            "st_size": 1024,
+            "st_size": 4096,
             # user id
             "st_uid": 501
         }
 
-    def readdir(self, path: str, fh: int) -> list:
-        return [".", "..", "teams", "user"]
+    def readdir(self, path: str, fh: int = None) -> list:
+        return (".", "..", "user")
