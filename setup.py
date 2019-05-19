@@ -6,7 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='clickupy',
-    version='0.0.2',
+    version='0.0.3',
     description='Package for interacting with the clickup api',
     url='https://github.com/dang3r/clickupy',
     author='Daniel Cardoza',
