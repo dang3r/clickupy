@@ -29,7 +29,7 @@ def cli(ctx, format, api_key):
 @click.argument("mountpoint")
 @click.pass_context
 def fuse(ctx, mountpoint):
-    """Create a FUSE filesystem for Clickup resources"""
+    """Create a FUSE filesystem for clickup resources"""
     client = ctx.obj["CLIENT"]
     print(f"Starting fuse filesystem at {mountpoint}")
     clickup_fuse(mountpoint, client)

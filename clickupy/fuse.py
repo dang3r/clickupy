@@ -15,8 +15,7 @@ from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 logger = logging.getLogger('fuse.log-mixin')
 logger.setLevel(logging.DEBUG)
 
-from .user import UserHandler
-from .base import BaseHandler
+from .handler import *
 
 class Router:
     """
@@ -27,7 +26,10 @@ class Router:
         self.client = client
         self.handlers = [
             (r"^/$", BaseHandler(client)),
-            (r"^/user$", UserHandler(client))
+            (r"^/user$", UserHandler(client)),
+            (r"^/teams\/?$", TeamsHandler(client)),
+            (r"^/teams/[0-9]+$", TeamHandler(client))
+
         ]
 
     def match(self, operation: str, path: str):
@@ -40,18 +42,7 @@ class Router:
                 print("Found matching handler for", operation, path)
                 method = getattr(handler, operation)
                 return method
-        raise Exception("bad")
-
-def log(func):
-    """Log all functions"""
-    @functools.wraps(func)
-    def inner(self, *args, **kwargs):
-        print(f"{func.__name__.upper()} with {args}, {kwargs}")
-        ret = func(self, *args, **kwargs)
-        print("Returned", ret)
-        return ret
-    return inner
-
+        raise Exception(f"No handler for {operation} at {path}")
  
 def delegate(func):
     """
