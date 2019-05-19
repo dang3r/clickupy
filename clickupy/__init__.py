@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
 from functools import update_wrapper
 import json
 
 import requests
+
+from .fuse import *
 
 class Error(Exception):
     pass
@@ -78,27 +81,54 @@ class Client:
        }
        return self._do("PUT", f"list/{list_id}/task")
 
-def serialize_user(user : dict, format: str):
+class SerializerFactory:
+    def __init__(self):
+        self.serializers = defaultdict(dict)
+
+    def __call__(self, object_type: str, format: str):
+        def wrapped(func):
+            self.serializers[object_type][format] = func
+            return func
+        return wrapped
+
+    def __contains__(self, key: tuple):
+        object_type, format = key
+        return object_type in self.serializers and format in self.serializers[object_type]
+
+serializer = SerializerFactory()
+
+@serializer("user", "human")
+def user_human(user: dict):
     user = user["user"]
-    if format == "human":
-        return f'{user["id"]} {user["username"]}'
-    elif format == "json":
-        return json.dumps(user,indent=2)
-    else:
-        raise Exception()
+    return f'{user["id"]} {user["username"]}'
 
-def serialize_default(obj, format):
-    return json.dumps(obj, indent=2)
+@serializer("team", "human")
+def team_human(team: dict):
+    return f'{team["id"]} {team["name"]} {len(team["members"])} users'
 
-serializers = {
-    "user": serialize_user,
-    "teams": serialize_default,
-    "team": serialize_default,
-    "spaces": serialize_default,
-    "projects": serialize_default,
-    "tasks": serialize_default
-}
+@serializer("teams", "human")
+def teams_human(teams: list):
+    teams_str = [team_human(team) for team in teams]
+    return "\n".join(teams_str)
+
+@serializer("spaces", "human")
+def spaces_human(spaces: list):
+    spaces_str = [f'{space["id"]} {space["name"]}' for space in spaces]
+    return "\n".join(spaces_str)
+
+@serializer("projects", "human")
+def projects_human(projects: list):
+    projects_str = [f'{project["id"]} {project["name"]}' for project in projects]
+    return "\n".join(projects_str)
+
+@serializer("tasks", "human")
+def tasks_human(tasks: list):
+    tasks_str = [f'{task["id"]} {task["name"]}' for task in tasks]
+    return "\n".join(tasks_str)
+
 def serialize(object_type: str, object: dict, format: str):
-    if object_type not in serializers:
-        raise SerializerDoesNotExist(object_type)
-    return serializers[object_type](object, format)
+    if (object_type, format) not in serializer:
+        raise SerializerDoesNotExist(object_type, format)
+    elif object_type == "json":
+        return json.dumps(object, indent=2)
+    return serializer.serializers[object_type][format](object)

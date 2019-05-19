@@ -18,12 +18,21 @@ def pass_common_args(func):
 
 @click.group()
 @click.option("--format", default="human", type=click.Choice(["human", "json"]))
-@click.option("--api_key", envvar="CLICKUP_API_KEY", help="An API KEY for clickup")
+@click.option("--api_key", envvar="CLICKUP_API_KEY", required=True, help="An API KEY for clickup")
 @click.pass_context
 def cli(ctx, format, api_key):
     """A command line tool for interacting with clickup"""
     ctx.obj["CLIENT"] = Client(api_key)
     ctx.obj["FORMAT"] = format
+
+@cli.command()
+@click.argument("mountpoint")
+@click.pass_context
+def fuse(ctx, mountpoint):
+    """Create a FUSE filesystem for clickup resources"""
+    client = ctx.obj["CLIENT"]
+    print(f"Starting fuse filesystem at {mountpoint}")
+    clickup_fuse(mountpoint, client)
 
 @cli.command()
 @pass_common_args
@@ -37,7 +46,7 @@ def user(client, format):
 def teams(client, format):
     """Get a user's teams"""
     teams = client.teams()
-    print(serialize("teams", teams, format))
+    print(serialize("teams", teams["teams"], format))
 
 @cli.command()
 @click.argument("id")
@@ -45,7 +54,7 @@ def teams(client, format):
 def team(client, format, id):
     """Get a user's team"""
     team = client.team(id)
-    print(serialize("team", team, format))
+    print(serialize("team", team["team"], format))
 
 @cli.command()
 @click.argument("team_id")
@@ -53,7 +62,7 @@ def team(client, format, id):
 def spaces(client, format, team_id):
     """Get a team's spaces"""
     spaces = client.spaces(team_id)
-    print(serialize("spaces", spaces, format))
+    print(serialize("spaces", spaces["spaces"], format))
 
 @cli.command()
 @click.argument("space_id")
@@ -61,7 +70,7 @@ def spaces(client, format, team_id):
 def projects(client, format, space_id):
     """Get a space's projects"""
     projects = client.projects(space_id)
-    print(serialize("projects", projects, format))
+    print(serialize("projects", projects["projects"], format))
 
 @cli.command()
 @click.argument("team_id")
@@ -69,7 +78,7 @@ def projects(client, format, space_id):
 def tasks(client, format, team_id):
     """Get a team's spaces"""
     tasks = client.tasks(team_id)
-    print(serialize("tasks", tasks, format))
+    print(serialize("tasks", tasks["tasks"], format))
 
 if __name__ == "__main__":
     cli(obj={})
