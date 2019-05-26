@@ -68,7 +68,7 @@ class Client:
            "priority": priority,
            "due_date": due_date
        }
-       return self._do("POST", f"list/{list_id}/task")
+       return self._do("POST", f"list/{list_id}/task", data=data)
 
     def edit_task(self, list_id:str, name:str, content:str, assignees:list, status:str, priority:int, due_date:str):
        data = {
@@ -79,7 +79,7 @@ class Client:
            "priority": priority,
            "due_date": due_date
        }
-       return self._do("PUT", f"list/{list_id}/task")
+       return self._do("PUT", f"list/{list_id}/task", data=data)
 
 class SerializerFactory:
     def __init__(self):
@@ -127,8 +127,8 @@ def tasks_human(tasks: list):
     return "\n".join(tasks_str)
 
 def serialize(object_type: str, object: dict, format: str):
-    if (object_type, format) not in serializer:
-        raise SerializerDoesNotExist(object_type, format)
-    elif object_type == "json":
+    if format == "json":
         return json.dumps(object, indent=2)
+    elif (object_type, format) not in serializer:
+        raise SerializerDoesNotExist(object_type, format)
     return serializer.serializers[object_type][format](object)
